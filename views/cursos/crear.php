@@ -18,6 +18,7 @@
         <?php endif; ?>
 
         <form method="POST" action="index.php?action=curso_guardar">
+            <?php echo campoTokenCSRF(); ?>
             <div class="form-group">
                 <label>Código del Curso:</label>
                 <input type="text" name="codigo" placeholder="Ej: DS-101" required>
@@ -40,6 +41,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary">Guardar Curso</button>
+            <?php echo campoTokenCSRF(); // Campo oculto para el token CSRF ?>
         </form>
     </div>
 </body>

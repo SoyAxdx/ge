@@ -57,6 +57,13 @@ public function register() {
         header('Location: index.php?action=register');
         exit();
     }
+    
+    // Verificar CSRF
+    if (!isset($_POST['csrf_token']) || !verificarTokenCSRF($_POST['csrf_token'])) {
+        $_SESSION['error'] = '❌ Error de seguridad. Intenta de nuevo.';
+        header('Location: index.php?action=register');
+        exit();
+    }
 
     $nombre = trim($_POST['nombre'] ?? '');
     $apellido = trim($_POST['apellido'] ?? '');
@@ -65,29 +72,29 @@ public function register() {
     $passwordConfirm = $_POST['password_confirm'] ?? '';
     $rol = $_POST['rol'] ?? 'estudiante';  // ✅ NUEVA LÍNEA
 
-    // --- Validación de nombre ---
-    if (!preg_match('/^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s]+$/', $nombre)) {
-        $_SESSION['error'] = '❌ El nombre solo debe contener letras.';
-        header('Location: index.php?action=register');
-        exit();
-    }
-    if (strlen($nombre) < 2) {
-        $_SESSION['error'] = '❌ El nombre debe tener al menos 2 caracteres.';
-        header('Location: index.php?action=register');
-        exit();
-    }
+    // --- Validación de nombre (solo letras y espacios) ---
+if (!preg_match('/^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s]+$/', $nombre)) {
+    $_SESSION['error'] = '❌ El nombre solo debe contener letras.';
+    header('Location: index.php?action=register');
+    exit();
+}
+if (strlen($nombre) < 2) {
+    $_SESSION['error'] = '❌ El nombre debe tener al menos 2 caracteres.';
+    header('Location: index.php?action=register');
+    exit();
+}
 
-    // --- Validación de apellido ---
-    if (!preg_match('/^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s]+$/', $apellido)) {
-        $_SESSION['error'] = '❌ El apellido solo debe contener letras.';
-        header('Location: index.php?action=register');
-        exit();
-    }
-    if (strlen($apellido) < 2) {
-        $_SESSION['error'] = '❌ El apellido debe tener al menos 2 caracteres.';
-        header('Location: index.php?action=register');
-        exit();
-    }
+// --- Validación de apellido ---
+if (!preg_match('/^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s]+$/', $apellido)) {
+    $_SESSION['error'] = '❌ El apellido solo debe contener letras.';
+    header('Location: index.php?action=register');
+    exit();
+}
+if (strlen($apellido) < 2) {
+    $_SESSION['error'] = '❌ El apellido debe tener al menos 2 caracteres.';
+    header('Location: index.php?action=register');
+    exit();
+}
 
     // --- Validación de email ---
     $email = strtolower($email);
@@ -134,6 +141,14 @@ public function register() {
     // PROCESAR LOGIN
     // ============================================
     public function login() {
+
+        // Verificar CSRF
+if (!isset($_POST['csrf_token']) || !verificarTokenCSRF($_POST['csrf_token'])) {
+    $_SESSION['error'] = '❌ Error de seguridad. Intenta de nuevo.';
+    header('Location: index.php?action=login');
+    exit();
+}
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: index.php?action=login');
             exit();

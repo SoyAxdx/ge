@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
+    <?php $curso = $curso ?? []; ?>
     <div class="dashboard-container" style="max-width:600px;">
         <div class="dashboard-header">
             <h1>✏️ Editar Curso</h1>
@@ -18,6 +19,7 @@
         <?php endif; ?>
 
         <form method="POST" action="index.php?action=curso_actualizar">
+            <?php echo campoTokenCSRF(); ?>
             <input type="hidden" name="id" value="<?= $curso['id'] ?>">
 
             <div class="form-group">

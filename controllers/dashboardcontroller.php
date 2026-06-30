@@ -16,19 +16,19 @@ class DashboardController {
     private $inscripcionModel;
     
     public function __construct() {
-        $this->estudianteModel = new Estudiante();
-        $this->cursoModel = new Curso();
-        $this->inscripcionModel = new Inscripcion();
-        
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        
-        if (!isset($_SESSION['usuario_id'])) {
-            header('Location: index.php?action=login');
-            exit();
-        }
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
     }
+    
+    // Verificar autenticación
+    if (!isset($_SESSION['usuario_id'])) {
+        header('Location: index.php?action=login');
+        exit();
+    }
+    
+    // El Dashboard es visible para todos los roles autenticados
+    // No necesita verificación de admin
+}
     
     // ============================================
     // MOSTRAR DASHBOARD CON ESTADÍSTICAS

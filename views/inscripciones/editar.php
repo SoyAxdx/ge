@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
+    <?php if (session_status() === PHP_SESSION_NONE) { session_start(); } $inscripcion = $inscripcion ?? []; ?>
     <div class="dashboard-container" style="max-width:600px;">
         <div class="dashboard-header">
             <h1>✏️ Editar Nota</h1>
@@ -18,16 +19,17 @@
         <?php endif; ?>
 
         <form method="POST" action="index.php?action=inscripcion_actualizar">
-            <input type="hidden" name="id" value="<?= $inscripcion['id'] ?>">
+            <?php echo campoTokenCSRF(); ?>
+            <input type="hidden" name="id" value="<?= htmlspecialchars($inscripcion['id'] ?? '') ?>">
 
             <div class="form-group">
                 <label>Estudiante:</label>
-                <input type="text" value="<?= htmlspecialchars($inscripcion['estudiante_nombre'] . ' ' . $inscripcion['estudiante_apellido']) ?>" disabled>
+                <input type="text" value="<?= htmlspecialchars( ($inscripcion['estudiante_nombre'] ?? '') . ' ' . ($inscripcion['estudiante_apellido'] ?? '') ) ?>" disabled>
             </div>
 
             <div class="form-group">
                 <label>Curso:</label>
-                <input type="text" value="<?= htmlspecialchars($inscripcion['curso_nombre']) ?>" disabled>
+                <input type="text" value="<?= htmlspecialchars($inscripcion['curso_nombre'] ?? '') ?>" disabled>
             </div>
 
             <div class="form-group">
@@ -36,6 +38,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary">Actualizar Nota</button>
+            <?php echo campoTokenCSRF(); // Campo oculto para el token CSRF ?>
         </form>
     </div>
 </body>

@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
+    <?php
+    if (session_status() === PHP_SESSION_NONE) { session_start(); }
+    $estudiantes = $estudiantes ?? [];
+    $cursos = $cursos ?? [];
+    ?>
     <div class="dashboard-container" style="max-width:600px;">
         <div class="dashboard-header">
             <h1>➕ Nueva Inscripción</h1>
@@ -18,6 +23,7 @@
         <?php endif; ?>
 
         <form method="POST" action="index.php?action=inscripcion_guardar">
+            <?php echo campoTokenCSRF(); ?>
             <div class="form-group">
                 <label>Estudiante:</label>
                 <select name="estudiante_id" required>
@@ -43,6 +49,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary">Inscribir Estudiante</button>
+            <?php echo campoTokenCSRF(); // Campo oculto para el token CSRF ?>
         </form>
     </div>
 </body>

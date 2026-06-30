@@ -16,19 +16,26 @@ class InscripcionController {
     private $cursoModel;
     
     public function __construct() {
-        $this->modelo = new Inscripcion();
-        $this->estudianteModel = new Estudiante();
-        $this->cursoModel = new Curso();
-        
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        
-        if (!isset($_SESSION['usuario_id'])) {
-            header('Location: index.php?action=login');
-            exit();
-        }
+    $this->modelo = new Inscripcion();
+    $this->estudianteModel = new Estudiante();
+    $this->cursoModel = new Curso();
+    
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
     }
+    
+    // Verificar autenticación
+    if (!isset($_SESSION['usuario_id'])) {
+        header('Location: index.php?action=login');
+        exit();
+    }
+    
+    // Verificar rol de administrador
+    if ($_SESSION['usuario_rol'] !== 'admin') {
+        header('Location: index.php?action=error_403');
+        exit();
+    }
+}
     
     // ============================================
     // LISTAR INSCRIPCIONES (READ)
@@ -51,6 +58,14 @@ class InscripcionController {
     // GUARDAR INSCRIPCIÓN (CREATE)
     // ============================================
     public function guardar() {
+
+        // Verificar CSRF
+        if (!isset($_POST['csrf_token']) || !verificarTokenCSRF($_POST['csrf_token'])) {
+            $_SESSION['error'] = '❌ Error de seguridad. Intenta de nuevo.';
+            header('Location: index.php?action=inscripciones');
+            exit();
+        }
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: index.php?action=inscripciones');
             exit();
@@ -102,7 +117,9 @@ class InscripcionController {
     // ACTUALIZAR NOTA DE INSCRIPCIÓN (UPDATE)
     // ============================================
     public function actualizar() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        // Verificar CSRF
+        if (!isset($_POST['csrf_token']) || !verificarTokenCSRF($_POST['csrf_token'])) {
+            $_SESSION['error'] = '❌ Error de seguridad. Intenta de nuevo.';
             header('Location: index.php?action=inscripciones');
             exit();
         }
@@ -130,7 +147,7 @@ class InscripcionController {
     // ============================================
     // ELIMINAR INSCRIPCIÓN (DELETE)
     // ============================================
-    public function eliminar() {
+    public function eliminar() {  
         $id = $_GET['id'] ?? 0;
         
         if ($this->modelo->eliminar($id)) {

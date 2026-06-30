@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
+    <?php $estudiante = $estudiante ?? []; ?>
     <div class="dashboard-container" style="max-width:600px;">
         <div class="dashboard-header">
             <h1>✏️ Editar Estudiante</h1>
@@ -19,17 +20,18 @@
         <?php endif; ?>
 
         <form id="formEstudiante" method="POST" action="index.php?action=estudiante_actualizar" onsubmit="return validarFormulario()">
-            <input type="hidden" name="id" value="<?= $estudiante['id'] ?>">
+            <?php echo campoTokenCSRF(); ?>
+            <input type="hidden" name="id" value="<?= htmlspecialchars($estudiante['id'] ?? '') ?>">
 
             <div class="form-group">
                 <label>Cédula (formato: 0-000-0000, 0-00-00 o 0-00-000):</label>
-                <input type="text" id="cedula" name="cedula" value="<?= htmlspecialchars($estudiante['cedula']) ?>" placeholder="Ej: 8-888-8888" required>
+                <input type="text" id="cedula" name="cedula" value="<?= htmlspecialchars($estudiante['cedula'] ?? '') ?>" placeholder="Ej: 8-888-8888" required>
                 <small class="hint">Ejemplos válidos: 8-888-8888, 8-88-88, 8-88-888</small>
             </div>
 
             <div class="form-group">
                 <label>Nombre:</label>
-                <input type="text" id="nombre" name="nombre" value="<?= htmlspecialchars($estudiante['nombre']) ?>" required>
+                <input type="text" id="nombre" name="nombre" value="<?= htmlspecialchars($estudiante['nombre'] ?? '') ?>" required>
                 <small class="hint">Solo letras. Primera letra mayúscula.</small>
             </div>
 
@@ -41,7 +43,7 @@
 
             <div class="form-group">
                 <label>Fecha de Nacimiento:</label>
-                <input type="date" name="fecha_nacimiento" value="<?= $estudiante['fecha_nacimiento'] ?>">
+                <input type="date" name="fecha_nacimiento" value="<?= htmlspecialchars($estudiante['fecha_nacimiento'] ?? '') ?>">
             </div>
 
             <div class="form-group">
@@ -62,6 +64,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary">Actualizar Estudiante</button>
+            <?php echo campoTokenCSRF(); // Campo oculto para el token CSRF ?>
         </form>
     </div>
 

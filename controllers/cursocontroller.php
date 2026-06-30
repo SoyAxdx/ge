@@ -12,17 +12,24 @@ class CursoController {
     private $modelo;
     
     public function __construct() {
-        $this->modelo = new Curso();
-        
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        
-        if (!isset($_SESSION['usuario_id'])) {
-            header('Location: index.php?action=login');
-            exit();
-        }
+    $this->modelo = new Curso();
+    
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
     }
+    
+    // Verificar autenticación
+    if (!isset($_SESSION['usuario_id'])) {
+        header('Location: index.php?action=login');
+        exit();
+    }
+    
+    // Verificar rol de administrador
+    if ($_SESSION['usuario_rol'] !== 'admin') {
+        header('Location: index.php?action=error_403');
+        exit();
+    }
+}
     
     // ============================================
     // LISTAR CURSOS (READ)
@@ -43,6 +50,14 @@ class CursoController {
     // GUARDAR CURSO (CREATE)
     // ============================================
     public function guardar() {
+
+         // Verificar CSRF
+if (!isset($_POST['csrf_token']) || !verificarTokenCSRF($_POST['csrf_token'])) {
+    $_SESSION['error'] = '❌ Error de seguridad. Intenta de nuevo.';
+    header('Location: index.php?action=cursos');
+    exit();
+}
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: index.php?action=cursos');
             exit();
@@ -85,7 +100,9 @@ class CursoController {
     // ACTUALIZAR CURSO (UPDATE)
     // ============================================
     public function actualizar() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        // Verificar CSRF
+        if (!isset($_POST['csrf_token']) || !verificarTokenCSRF($_POST['csrf_token'])) {
+            $_SESSION['error'] = '❌ Error de seguridad. Intenta de nuevo.';
             header('Location: index.php?action=cursos');
             exit();
         }

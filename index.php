@@ -4,35 +4,51 @@
 // Proyecto: GE (Gestión Escolar)
 // ============================================
 
-// --- Cargar autoload manual (por ahora) ---
+// --- Desactivar visualización de errores ---
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
+// --- Manejador de errores fatales ---
+function manejarErrorFatal() {
+    $error = error_get_last();
+    if ($error !== null && in_array($error['type'], [E_ERROR, E_PARSE, E_COMPILE_ERROR])) {
+        ob_clean();
+        include_once __DIR__ . '/views/errors/500.php';
+        exit();
+    }
+}
+register_shutdown_function('manejarErrorFatal');
+
+// --- Cargar archivos necesarios ---
 require_once 'config/database.php';
 require_once 'models/Usuario.php';
 require_once 'models/Estudiante.php';
 require_once 'models/Curso.php';
-require_once 'models/Inscripcion.php'; // ✅ NUEVO
+require_once 'models/Inscripcion.php';
 require_once 'controllers/AuthController.php';
 require_once 'controllers/EstudianteController.php';
 require_once 'controllers/CursoController.php';
-require_once 'controllers/InscripcionController.php'; // ✅ NUEVO
-// --- Cargar autoload manual ---
+require_once 'controllers/InscripcionController.php';
 require_once 'controllers/DashboardController.php';
+require_once 'helpers/functions.php';
 
 // --- Usar las clases con sus namespaces ---
 use Config\Database;
 use Controllers\AuthController;
 use Controllers\EstudianteController;
 use Controllers\CursoController;
-use Controllers\InscripcionController; // ✅ NUEVO
-// --- Usar las clases con sus namespaces ---
+use Controllers\InscripcionController;
 use Controllers\DashboardController;
 
 // --- Iniciar sesión ---
 session_start();
 
 // --- Obtener la acción desde la URL ---
-$action = $_GET['action'] ?? 'login';
+$action = isset($_GET['action']) && $_GET['action'] !== '' ? $_GET['action'] : 'login';
 
-// --- Router: decidir qué controlador ejecutar ---
+// ============================================
+// ROUTER
+// ============================================
 switch ($action) {
     
     // ============================================
@@ -63,11 +79,13 @@ switch ($action) {
         $auth->logout();
         break;
     
-    // --- En el switch, reemplazar case 'dashboard' ---
-case 'dashboard':
-    $controller = new DashboardController();
-    $controller->index();
-    break;
+    // ============================================
+    // DASHBOARD
+    // ============================================
+    case 'dashboard':
+        $controller = new DashboardController();
+        $controller->index();
+        break;
     
     // ============================================
     // CRUD - ESTUDIANTES
@@ -136,7 +154,7 @@ case 'dashboard':
         break;
     
     // ============================================
-    // CRUD - INSCRIPCIONES  // ✅ NUEVO BLOQUE
+    // CRUD - INSCRIPCIONES
     // ============================================
     case 'inscripciones':
         $controller = new InscripcionController();
@@ -167,14 +185,40 @@ case 'dashboard':
         $controller = new InscripcionController();
         $controller->eliminar();
         break;
+
+    // ============================================
+    // PÁGINAS DE ERROR
+    // ============================================
+    case 'error_404':
+        include_once __DIR__ . '/views/errors/404.php';
+        break;
+
+    case 'error_403':
+        include_once __DIR__ . '/views/errors/403.php';
+        break;
+
+    case 'error_500':
+        include_once __DIR__ . '/views/errors/500.php';
+        break;
     
     // ============================================
     // RUTA POR DEFECTO (404)
     // ============================================
     default:
-        echo "<h1>404 - Página no encontrada</h1>";
-        echo "<p>La acción <strong>'{$action}'</strong> no existe.</p>";
-        echo "<a href='index.php?action=login'>Volver al inicio</a>";
+        $errorFile = __DIR__ . '/views/errors/404.php';
+        if (file_exists($errorFile)) {
+            include_once $errorFile;
+        } else {
+            echo "<h1>404 - Página no encontrada</h1>";
+            echo "<p>La acción <strong>'{$action}'</strong> no existe.</p>";
+            echo "<a href='index.php?action=login'>Volver al inicio</a>";
+        }
         break;
 }
+
+// ============================================
+// MANEJO DE ERRORES (después del switch)
+// ============================================
+// Nota: Los errores de ejecución (como excepciones) se manejan
+// en los controladores, no aquí, para no interferir con el router.
 ?>

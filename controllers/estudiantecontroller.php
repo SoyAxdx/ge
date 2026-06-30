@@ -12,18 +12,24 @@ class EstudianteController {
     private $modelo;
     
     public function __construct() {
-        $this->modelo = new Estudiante();
-        
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        
-        // Verificar autenticación
-        if (!isset($_SESSION['usuario_id'])) {
-            header('Location: index.php?action=login');
-            exit();
-        }
+    $this->modelo = new Estudiante();
+    
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
     }
+    
+    // Verificar autenticación
+    if (!isset($_SESSION['usuario_id'])) {
+        header('Location: index.php?action=login');
+        exit();
+    }
+    
+    // Verificar rol de administrador
+    if ($_SESSION['usuario_rol'] !== 'admin') {
+        header('Location: index.php?action=error_403');
+        exit();
+    }
+}
     
     // ============================================
     // LISTAR ESTUDIANTES (READ)
@@ -44,6 +50,14 @@ class EstudianteController {
     // GUARDAR ESTUDIANTE (CREATE) - CON TODAS LAS VALIDACIONES
     // ============================================
     public function guardar() {
+
+    // Verificar CSRF
+if (!isset($_POST['csrf_token']) || !verificarTokenCSRF($_POST['csrf_token'])) {
+    $_SESSION['error'] = '❌ Error de seguridad. Intenta de nuevo.';
+    header('Location: index.php?action=estudiantes');
+    exit();
+}
+
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         header('Location: index.php?action=estudiantes');
         exit();
@@ -157,7 +171,15 @@ class EstudianteController {
 // ACTUALIZAR ESTUDIANTE (UPDATE)
 // ============================================
 public function actualizar() {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+
+    // Verificar CSRF
+if (!isset($_POST['csrf_token']) || !verificarTokenCSRF($_POST['csrf_token'])) {
+    $_SESSION['error'] = '❌ Error de seguridad. Intenta de nuevo.';
+    header('Location: index.php?action=estudiantes');
+    exit();
+}
+
+   if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         header('Location: index.php?action=estudiantes');
         exit();
     }

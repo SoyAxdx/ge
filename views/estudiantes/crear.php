@@ -19,6 +19,7 @@
         <?php endif; ?>
 
         <form id="formEstudiante" method="POST" action="index.php?action=estudiante_guardar" onsubmit="return validarFormulario()">
+            <?php echo campoTokenCSRF(); ?>
             <div class="form-group">
                 <label>Cédula (formato: 0-000-0000, 0-00-00 o 0-00-000):</label>
                 <input type="text" id="cedula" name="cedula" placeholder="Ej: 8-888-8888" required>
@@ -57,6 +58,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary">Guardar Estudiante</button>
+            <?php echo campoTokenCSRF(); // Campo oculto para el token CSRF ?>
         </form>
     </div>
 

@@ -36,6 +36,7 @@
             </div>
             
             <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+            <?php echo campoTokenCSRF(); // Campo oculto para el token CSRF ?>
         </form>
         
         <p>¿No tienes cuenta? <a href="index.php?action=register">Regístrate aquí</a></p>

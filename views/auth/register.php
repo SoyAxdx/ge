@@ -17,6 +17,7 @@
         <?php endif; ?>
 
         <form id="registerForm" method="POST" action="index.php?action=procesar_registro" novalidate>
+            <?php echo campoTokenCSRF(); ?>
             <!-- NOMBRE -->
             <div class="form-group">
                 <label for="nombre">Nombre:</label>
@@ -73,6 +74,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary">Registrarse</button>
+            <?php echo campoTokenCSRF(); // Campo oculto para el token CSRF ?>
         </form>
 
         <p>¿Ya tienes cuenta? <a href="index.php?action=login">Inicia sesión aquí</a></p>
