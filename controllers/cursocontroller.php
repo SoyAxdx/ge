@@ -6,6 +6,8 @@
 namespace Controllers;
 
 use Models\Curso;
+// ✅ Importar funciones de exportación
+require_once __DIR__ . '/../helpers/exportar.php';
 
 class CursoController {
     
@@ -141,5 +143,103 @@ if (!isset($_POST['csrf_token']) || !verificarTokenCSRF($_POST['csrf_token'])) {
         header('Location: index.php?action=cursos');
         exit();
     }
+
+    // ============================================
+    // BUSCAR CURSOS
+    // ============================================
+  public function buscar() {
+    $termino = $_GET['termino'] ?? '';
+    if (empty($termino)) {
+        header('Location: index.php?action=cursos');
+        exit();
+    }
+    
+    $cursos = $this->modelo->buscar($termino);
+    include_once __DIR__ . '/../views/cursos/index.php';
+  }
+
+  // ============================================
+// EXPORTAR CURSOS A PDF
+// ============================================
+public function exportarPDF() {
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+    $cursos = $this->modelo->obtenerTodos();
+    
+    $html = '
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body { font-family: Arial, sans-serif; }
+            h1 { text-align: center; color: #1a5276; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th { background: #1a5276; color: white; padding: 8px; }
+            td { border: 1px solid #ddd; padding: 8px; }
+            tr:nth-child(even) { background: #f2f2f2; }
+        </style>
+    </head>
+    <body>
+        <h1>📋 Reporte de Cursos</h1>
+        <p>Total: ' . count($cursos) . ' cursos</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Créditos</th>
+                </tr>
+            </thead>
+            <tbody>';
+    
+    $contador = 1;
+    foreach ($cursos as $c) {
+        $html .= '
+            <tr>
+                <td>' . $contador++ . '</td>
+                <td>' . htmlspecialchars($c['codigo']) . '</td>
+                <td>' . htmlspecialchars($c['nombre']) . '</td>
+                <td>' . htmlspecialchars(substr($c['descripcion'] ?? '', 0, 50)) . '...</td>
+                <td>' . $c['creditos'] . '</td>
+            </tr>';
+    }
+    
+    $html .= '
+            </tbody>
+        </table>
+        <p style="text-align:center; margin-top:20px; color:#888; font-size:12px;">
+            Generado el ' . date('d/m/Y H:i:s') . '
+        </p>
+    </body>
+    </html>';
+    
+    exportarPDF($html, 'Reporte_Cursos');
+}
+
+// ============================================
+// EXPORTAR CURSOS A EXCEL
+// ============================================
+public function exportarExcel() {
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+    $cursos = $this->modelo->obtenerTodos();
+    
+    $datos = [];
+    foreach ($cursos as $c) {
+        $datos[] = [
+            $c['codigo'],
+            $c['nombre'],
+            $c['descripcion'] ?? '',
+            $c['creditos'],
+            $c['fecha_creacion']
+        ];
+    }
+    
+    $columnas = ['Código', 'Nombre', 'Descripción', 'Créditos', 'Fecha Creación'];
+    exportarExcel($datos, $columnas, 'Reporte_Cursos');
+}
+
 }
 ?>

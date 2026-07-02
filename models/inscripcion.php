@@ -208,5 +208,33 @@ public function cursosPopulares($limite = 5) {
     $stmt->execute();
     return $stmt->fetchAll();
 }
+
+  // ============================================
+  // BUSCAR INSCRIPCIONES
+  // ============================================
+  public function buscar($termino) {
+    $sql = "SELECT ec.*, 
+                   e.nombre as estudiante_nombre, 
+                   e.apellido as estudiante_apellido,
+                   e.cedula as estudiante_cedula,
+                   c.nombre as curso_nombre,
+                   c.codigo as curso_codigo
+            FROM estudiantes_cursos ec
+            JOIN estudiantes e ON ec.estudiante_id = e.id
+            JOIN cursos c ON ec.curso_id = c.id
+            WHERE e.nombre LIKE :termino 
+            OR e.apellido LIKE :termino 
+            OR e.cedula LIKE :termino
+            OR c.nombre LIKE :termino 
+            OR c.codigo LIKE :termino
+            ORDER BY ec.id DESC";
+    
+    $stmt = $this->db->prepare($sql);
+    $termino = '%' . $termino . '%';
+    $stmt->bindParam(':termino', $termino);
+    $stmt->execute();
+    return $stmt->fetchAll();
+  }
+
 }
 ?>

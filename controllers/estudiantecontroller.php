@@ -7,6 +7,9 @@ namespace Controllers;
 
 use Models\Estudiante;
 
+// ✅ Importar funciones de exportación
+require_once __DIR__ . '/../helpers/exportar.php';
+
 class EstudianteController {
     
     private $modelo;
@@ -325,5 +328,122 @@ if (!isset($_POST['csrf_token']) || !verificarTokenCSRF($_POST['csrf_token'])) {
    private function normalizarEmail($email) {
     return strtolower(trim($email));
    }   
+
+   // ============================================
+   // BUSCAR ESTUDIANTES
+   // ============================================
+   public function buscar() {
+    $termino = $_GET['termino'] ?? '';
+    if (empty($termino)) {
+        header('Location: index.php?action=estudiantes');
+        exit();
+    }
+    
+    $estudiantes = $this->modelo->buscar($termino);
+    include_once __DIR__ . '/../views/estudiantes/index.php';
+  }
+//METODO DE EXPORTAR PDF PRUEBA
+/*public function exportarPDF() {
+    // Activar errores
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+    
+    try {
+        // Datos de prueba simples
+        $html = '<h1>Prueba de PDF</h1><p>Este es un PDF de prueba.</p>';
+        
+        $dompdf = new Dompdf\Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        $dompdf->stream('prueba.pdf', ['Attachment' => true]);
+        exit();
+    } catch (Exception $e) {
+        echo "Error: " . $e->getMessage();
+        exit();
+    }
+}
+    */
+  public function exportarPDF() {
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+    $estudiantes = $this->modelo->obtenerTodos();
+    
+    $html = '
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body { font-family: Arial, sans-serif; }
+            h1 { text-align: center; color: #1a5276; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th { background: #1a5276; color: white; padding: 8px; }
+            td { border: 1px solid #ddd; padding: 8px; }
+            tr:nth-child(even) { background: #f2f2f2; }
+        </style>
+    </head>
+    <body>
+        <h1>📋 Reporte de Estudiantes</h1>
+        <p>Total: ' . count($estudiantes) . ' estudiantes</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Cédula</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                </tr>
+            </thead>
+            <tbody>';
+    
+    $contador = 1;
+    foreach ($estudiantes as $e) {
+        $html .= '
+            <tr>
+                <td>' . $contador++ . '</td>
+                <td>' . htmlspecialchars($e['cedula']) . '</td>
+                <td>' . htmlspecialchars($e['nombre']) . '</td>
+                <td>' . htmlspecialchars($e['apellido']) . '</td>
+                <td>' . htmlspecialchars($e['email']) . '</td>
+                <td>' . htmlspecialchars($e['telefono']) . '</td>
+            </tr>';
+    }
+    
+    $html .= '
+            </tbody>
+        </table>
+        <p style="text-align:center; margin-top:20px; color:#888; font-size:12px;">
+            Generado el ' . date('d/m/Y H:i:s') . '
+        </p>
+    </body>
+    </html>';
+    
+    exportarPDF($html, 'Reporte_Estudiantes');
+}
+
+
+public function exportarExcel() {
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+    $estudiantes = $this->modelo->obtenerTodos();
+    
+    $datos = [];
+    foreach ($estudiantes as $e) {
+        $datos[] = [
+            $e['cedula'],
+            $e['nombre'],
+            $e['apellido'],
+            $e['email'],
+            $e['telefono'],
+            $e['fecha_registro']
+        ];
+    }
+    
+    $columnas = ['Cédula', 'Nombre', 'Apellido', 'Email', 'Teléfono', 'Fecha Registro'];
+    exportarExcel($datos, $columnas, 'Reporte_Estudiantes');
+}
+
 }
 ?>

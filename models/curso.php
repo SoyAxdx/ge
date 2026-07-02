@@ -94,5 +94,23 @@ public function contarTotal() {
     $resultado = $stmt->fetch();
     return $resultado['total'] ?? 0;
 }
+
+    // ============================================
+    // BUSCAR CURSOS
+    // ============================================
+  public function buscar($termino) {
+    $sql = "SELECT * FROM cursos 
+            WHERE nombre LIKE :termino 
+            OR codigo LIKE :termino 
+            OR descripcion LIKE :termino
+            ORDER BY id DESC";
+    
+    $stmt = $this->db->prepare($sql);
+    $termino = '%' . $termino . '%';
+    $stmt->bindParam(':termino', $termino);
+    $stmt->execute();
+    return $stmt->fetchAll();
+  }
+
 }
 ?>

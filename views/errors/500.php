@@ -40,9 +40,9 @@
         <div class="codigo">500</div>
         <h2>⚠️ Error interno del servidor</h2>
         <p>Ha ocurrido un error inesperado. Por favor, intenta de nuevo más tarde.</p>
-        <a href="index.php?action=dashboard" class="btn btn-primary">Volver al Dashboard</a>
-        <br><br>
-        <a href="index.php?action=login" class="btn btn-secondary" style="display:inline-block; width:auto; padding:10px 25px;">Ir al inicio de sesión</a>
+        <a href="index.php?action=dashboard" class="btn btn-primary" style="display:inline-block; width:auto; padding:10px 25px;">Volver al Dashboard</a>
+<br><br>
+<a href="index.php?action=login&logout=1" class="btn btn-secondary" style="display:inline-block; width:auto; padding:10px 25px;">Ir al inicio de sesión</a>
     </div>
 </body>
 </html>

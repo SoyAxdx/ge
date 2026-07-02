@@ -43,6 +43,9 @@ use Controllers\DashboardController;
 // --- Iniciar sesión ---
 session_start();
 
+// ✅ Cargar autoload de Composer
+require_once __DIR__ . '/vendor/autoload.php';
+
 // --- Obtener la acción desde la URL ---
 $action = isset($_GET['action']) && $_GET['action'] !== '' ? $_GET['action'] : 'login';
 
@@ -214,6 +217,58 @@ switch ($action) {
             echo "<a href='index.php?action=login'>Volver al inicio</a>";
         }
         break;
+
+    // ============================================
+    // BUSCADORES
+    // ============================================
+    case 'buscar_estudiantes':
+    $controller = new EstudianteController();
+    $controller->buscar();
+    break;
+
+    case 'buscar_cursos':
+    $controller = new CursoController();
+    $controller->buscar();
+    break;
+
+    case 'buscar_inscripciones':
+    $controller = new InscripcionController();
+    $controller->buscar();
+    break;
+
+    // ============================================
+    // EXPORTAR DATOS
+    // ============================================
+    case 'exportar_estudiantes_pdf':
+    $controller = new EstudianteController();
+    $controller->exportarPDF();
+    break;
+
+    case 'exportar_estudiantes_excel':
+    $controller = new EstudianteController();
+    $controller->exportarExcel();
+    break;
+
+    case 'exportar_cursos_pdf':
+    $controller = new CursoController();
+    $controller->exportarPDF();
+    break;
+
+    case 'exportar_cursos_excel':
+    $controller = new CursoController();
+    $controller->exportarExcel();
+    break;
+
+    case 'exportar_inscripciones_pdf':
+    $controller = new InscripcionController();
+    $controller->exportarPDF();
+    break;
+
+    case 'exportar_inscripciones_excel':
+    $controller = new InscripcionController();
+    $controller->exportarExcel();
+    break;
+
 }
 
 // ============================================

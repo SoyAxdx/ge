@@ -8,6 +8,8 @@ namespace Controllers;
 use Models\Inscripcion;
 use Models\Estudiante;
 use Models\Curso;
+// ✅ Importar funciones de exportación
+require_once __DIR__ . '/../helpers/exportar.php';
 
 class InscripcionController {
     
@@ -159,5 +161,105 @@ class InscripcionController {
         header('Location: index.php?action=inscripciones');
         exit();
     }
+
+    // ============================================
+    // BUSCAR INSCRIPCIONES
+    // ============================================
+    public function buscar() {
+    $termino = $_GET['termino'] ?? '';
+    if (empty($termino)) {
+        header('Location: index.php?action=inscripciones');
+        exit();
+    }
+    
+    $inscripciones = $this->modelo->buscar($termino);
+    include_once __DIR__ . '/../views/inscripciones/index.php';
+  }
+
+  // ============================================
+// EXPORTAR INSCRIPCIONES A PDF
+// ============================================
+public function exportarPDF() {
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+    $inscripciones = $this->modelo->obtenerTodas();
+    
+    $html = '
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body { font-family: Arial, sans-serif; }
+            h1 { text-align: center; color: #1a5276; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th { background: #1a5276; color: white; padding: 8px; }
+            td { border: 1px solid #ddd; padding: 8px; }
+            tr:nth-child(even) { background: #f2f2f2; }
+        </style>
+    </head>
+    <body>
+        <h1>📋 Reporte de Inscripciones</h1>
+        <p>Total: ' . count($inscripciones) . ' inscripciones</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Estudiante</th>
+                    <th>Curso</th>
+                    <th>Código</th>
+                    <th>Fecha</th>
+                    <th>Nota</th>
+                </tr>
+            </thead>
+            <tbody>';
+    
+    $contador = 1;
+    foreach ($inscripciones as $i) {
+        $html .= '
+            <tr>
+                <td>' . $contador++ . '</td>
+                <td>' . htmlspecialchars($i['estudiante_nombre'] . ' ' . $i['estudiante_apellido']) . '</td>
+                <td>' . htmlspecialchars($i['curso_nombre']) . '</td>
+                <td>' . htmlspecialchars($i['curso_codigo']) . '</td>
+                <td>' . $i['fecha_inscripcion'] . '</td>
+                <td>' . ($i['nota_final'] !== null ? number_format($i['nota_final'], 2) : 'Sin nota') . '</td>
+            </tr>';
+    }
+    
+    $html .= '
+            </tbody>
+        </table>
+        <p style="text-align:center; margin-top:20px; color:#888; font-size:12px;">
+            Generado el ' . date('d/m/Y H:i:s') . '
+        </p>
+    </body>
+    </html>';
+    
+    exportarPDF($html, 'Reporte_Inscripciones');
+}
+
+// ============================================
+// EXPORTAR INSCRIPCIONES A EXCEL
+// ============================================
+public function exportarExcel() {
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+    $inscripciones = $this->modelo->obtenerTodas();
+    
+    $datos = [];
+    foreach ($inscripciones as $i) {
+        $datos[] = [
+            $i['estudiante_nombre'] . ' ' . $i['estudiante_apellido'],
+            $i['curso_nombre'],
+            $i['curso_codigo'],
+            $i['fecha_inscripcion'],
+            $i['nota_final'] !== null ? number_format($i['nota_final'], 2) : 'Sin nota'
+        ];
+    }
+    
+    $columnas = ['Estudiante', 'Curso', 'Código', 'Fecha Inscripción', 'Nota'];
+    exportarExcel($datos, $columnas, 'Reporte_Inscripciones');
+}
+    
 }
 ?>

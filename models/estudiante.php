@@ -106,5 +106,24 @@ public function contarTotal() {
     $resultado = $stmt->fetch();
     return $resultado['total'] ?? 0;
 }
+
+// ============================================
+// BUSCAR ESTUDIANTES
+// ============================================
+public function buscar($termino) {
+    $sql = "SELECT * FROM estudiantes 
+            WHERE nombre LIKE :termino 
+            OR apellido LIKE :termino 
+            OR cedula LIKE :termino 
+            OR email LIKE :termino
+            ORDER BY id DESC";
+    
+    $stmt = $this->db->prepare($sql);
+    $termino = '%' . $termino . '%';
+    $stmt->bindParam(':termino', $termino);
+    $stmt->execute();
+    return $stmt->fetchAll();
+}
+
 }
 ?>

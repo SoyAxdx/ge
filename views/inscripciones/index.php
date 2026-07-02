@@ -21,8 +21,37 @@
             <div class="alert alert-error"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
         <?php endif; ?>
 
-        <div class="top-bar">
-            <a href="index.php?action=inscripcion_crear" class="btn btn-primary" style="display:inline-block; width:auto; padding:8px 20px;">➕ Nueva Inscripción</a>
+        <!-- ==========================================
+        TOP BAR: Botones + Búsqueda + Exportación
+        ========================================== -->
+        <div class="top-bar" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 18px;">
+            
+            <div class="d-flex gap-2 flex-wrap" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <a href="index.php?action=inscripcion_crear" class="btn btn-agregar">
+                    <i class="bi bi-plus-circle"></i> Nueva Inscripción
+                </a>
+                <!-- Botones de exportación para Inscripciones -->
+                <a href="index.php?action=exportar_inscripciones_pdf" class="btn btn-danger btn-sm" style="padding: 8px 16px; border-radius: 8px; text-decoration: none; color: white; background: #dc3545;">
+                    📄 PDF
+                </a>
+                <a href="index.php?action=exportar_inscripciones_excel" class="btn btn-success btn-sm" style="padding: 8px 16px; border-radius: 8px; text-decoration: none; color: white; background: #28a745;">
+                    📊 Excel
+                </a>
+            </div>
+
+            <form method="GET" action="index.php" class="d-flex gap-2" style="display: flex; gap: 8px;">
+                <input type="hidden" name="action" value="buscar_inscripciones">
+                <input type="text" name="termino" class="form-control" placeholder="Buscar por estudiante o curso..." 
+                       value="<?= htmlspecialchars($_GET['termino'] ?? '') ?>" style="width: 280px; padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc;">
+                <button type="submit" class="btn btn-primary btn-sm" style="padding: 8px 16px; border-radius: 6px; border: none; background: #1a5276; color: white;">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+                <?php if (isset($_GET['termino']) && !empty($_GET['termino'])): ?>
+                    <a href="index.php?action=inscripciones" class="btn btn-secondary btn-sm" style="padding: 8px 16px; border-radius: 6px; text-decoration: none; background: #e0e0e0; color: #333;">
+                        <i class="bi bi-x-circle"></i> Limpiar
+                    </a>
+                <?php endif; ?>
+            </form>
         </div>
 
         <?php if (empty($inscripciones)): ?>
@@ -35,7 +64,7 @@
                         <th>Estudiante</th>
                         <th>Curso</th>
                         <th>Código</th>
-                        <th>Fecha de Inscripción</th>
+                        <th>Fecha Inscripción</th>
                         <th>Nota</th>
                         <th>Acciones</th>
                     </tr>

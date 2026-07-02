@@ -23,15 +23,27 @@ class AuthController {
     // ============================================
     // MOSTRAR FORMULARIO DE LOGIN
     // ============================================
-    public function showLogin() {
-        // Si ya está logueado, redirigir al dashboard
-        if (isset($_SESSION['usuario_id'])) {
-            header('Location: index.php?action=dashboard');
-            exit();
-        }
-        
-        include_once __DIR__ . '/../views/auth/login.php';
+    // ============================================
+// MOSTRAR FORMULARIO DE LOGIN
+// ============================================
+public function showLogin() {
+    // Si ya está logueado y NO se pide logout forzoso, redirigir al dashboard
+    if (isset($_SESSION['usuario_id']) && !isset($_GET['logout'])) {
+        header('Location: index.php?action=dashboard');
+        exit();
     }
+    
+    // Si se pide logout forzoso, cerrar sesión
+    if (isset($_GET['logout'])) {
+        session_destroy();
+        session_start();
+        // Redirigir a login sin el parámetro logout
+        header('Location: index.php?action=login');
+        exit();
+    }
+    
+    include_once __DIR__ . '/../views/auth/login.php';
+}
     
     // ============================================
     // MOSTRAR FORMULARIO DE REGISTRO

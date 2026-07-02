@@ -39,10 +39,10 @@
     <div class="container error-container">
         <div class="codigo">404</div>
         <h2>🔍 Página no encontrada</h2>
-        <p>Lo sentimos, la página que estás buscando no existe o ha sido movida.</p>
-        <a href="index.php?action=dashboard" class="btn btn-primary">Volver al Dashboard</a>
-        <br><br>
-        <a href="index.php?action=login" class="btn btn-secondary" style="display:inline-block; width:auto; padding:10px 25px;">Ir al inicio de sesión</a>
+        <!-- ✅ Enlaces corregidos -->
+        <a href="index.php?action=dashboard" class="btn btn-primary" style="display:inline-block; width:auto; padding:10px 25px;">Volver al Dashboard</a>
+<br><br>
+<a href="index.php?action=login&logout=1" class="btn btn-secondary" style="display:inline-block; width:auto; padding:10px 25px;">Ir al inicio de sesión</a>
     </div>
 </body>
 </html>
