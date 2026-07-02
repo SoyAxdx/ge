@@ -1,0 +1,57 @@
+# ============================================
+# ARCHIVOS Y CARPETAS A IGNORAR EN GIT
+# ============================================
+
+# --- Composer ---
+/vendor/
+composer.phar
+composer.lock
+
+# --- Entorno y configuración ---
+.env
+.env.local
+.env.*.local
+
+# --- IDE y Editor ---
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw*
+.DS_Store
+
+# --- Logs y caché ---
+*.log
+*.cache
+*.tmp
+*.temp
+
+# --- Archivos de sistema de Windows ---
+Thumbs.db
+desktop.ini
+
+# --- Archivos de base de datos locales ---
+*.sqlite
+*.sqlite3
+ge.sql
+
+# --- Archivos de prueba y temporales ---
+test_*.php
+*.test
+*.backup
+*.bak
+
+# --- Archivos de compresión ---
+*.zip
+*.rar
+*.tar.gz
+*.7z
+
+# --- Otros archivos generados ---
+*.pdf
+*.xlsx
+*.xls
+*.csv
+*.html
