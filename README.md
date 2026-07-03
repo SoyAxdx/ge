@@ -139,7 +139,7 @@ El sistema incluye datos de prueba para facilitar las pruebas:
 
 ## 👨‍💻 Autor
 
-**Andy Vargas** – [GitHub](https://github.com/SoyAxdx)
+**Andy Pitterson** – [GitHub](https://github.com/SoyAxdx)
 
 ---
 
