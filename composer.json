@@ -1,6 +1,19 @@
 {
+    "name": "soyaxdx/ge",
+    "description": "Sistema de Gestión Escolar en PHP con MVC y PDO",
+    "type": "project",
     "require": {
         "dompdf/dompdf": "^3.1",
         "phpoffice/phpspreadsheet": "^5.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "Controllers\\": "controllers/",
+            "Models\\": "models/",
+            "Config\\": "config/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
     }
 }
