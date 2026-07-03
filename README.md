@@ -23,7 +23,7 @@ Sistema de gestión escolar desarrollado en **PHP** con programación orientada 
 ![Estudiantes](assets/img/screenshots/estudiantes.png)
 
 ### Formulario de Estudiante
-![Formulario Estudiante](assets/img/screenshots/estudiante-form.png)
+![Formulario Estudiante](assets/img/screenshots/estudiantes-form.png)
 
 ### Gestión de Cursos
 ![Cursos](assets/img/screenshots/cursos.png)
