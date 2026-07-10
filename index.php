@@ -32,6 +32,10 @@ require_once 'controllers/InscripcionController.php';
 require_once 'controllers/DashboardController.php';
 require_once 'helpers/functions.php';
 
+require_once 'helpers/functions.php';
+require_once 'helpers/env.php';  
+cargarEnv();                    
+
 // --- Usar las clases con sus namespaces ---
 use Config\Database;
 use Controllers\AuthController;

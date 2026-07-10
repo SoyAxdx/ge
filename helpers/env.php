@@ -51,4 +51,18 @@ function env($clave, $defecto = null) {
     }
     return $valor;
 }
+
+// ============================================
+// DEFINIR CONSTANTES DE CIFRADO
+// ============================================
+
+// Definir constante para la clave de cifrado
+if (!defined('ENCRYPTION_KEY')) {
+    define('ENCRYPTION_KEY', env('ENCRYPTION_KEY', 'clave-secreta-de-32-caracteres-para-AES-256'));
+}
+
+// Definir constante para el método de cifrado
+if (!defined('ENCRYPTION_METHOD')) {
+    define('ENCRYPTION_METHOD', 'AES-256-CBC');
+}
 ?>
