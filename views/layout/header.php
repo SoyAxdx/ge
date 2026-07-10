@@ -19,5 +19,6 @@
     
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="assets/css/style.css">
+
 </head>
 <body>

@@ -7,36 +7,35 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================
     // TEMA OSCURO / CLARO
     // ============================================
+    const themeBtn = document.getElementById('themeToggle');
+    const themeText = document.getElementById('themeText');
 
-    // Crear botón si no existe
-    let themeBtn = document.getElementById('themeToggle');
-    if (!themeBtn) {
-        themeBtn = document.createElement('button');
-        themeBtn.id = 'themeToggle';
-        themeBtn.className = 'theme-toggle';
-        themeBtn.setAttribute('aria-label', 'Cambiar tema');
-        document.body.appendChild(themeBtn);
+    if (themeBtn) {
+        // Detectar tema guardado o preferencia del sistema
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+            document.body.classList.add('dark-mode');
+            themeBtn.innerHTML = '<i class="bi bi-sun"></i> <span id="themeText">Modo Claro</span>';
+        } else {
+            document.body.classList.remove('dark-mode');
+            themeBtn.innerHTML = '<i class="bi bi-moon-stars"></i> <span id="themeText">Modo Oscuro</span>';
+        }
+
+        // Cambiar tema al hacer clic
+        themeBtn.addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            
+            if (isDark) {
+                themeBtn.innerHTML = '<i class="bi bi-sun"></i> <span id="themeText">Modo Claro</span>';
+            } else {
+                themeBtn.innerHTML = '<i class="bi bi-moon-stars"></i> <span id="themeText">Modo Oscuro</span>';
+            }
+        });
     }
-
-    // Detectar tema guardado o preferencia del sistema
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-        document.body.classList.add('dark-mode');
-        themeBtn.textContent = '☀️';
-    } else {
-        document.body.classList.remove('dark-mode');
-        themeBtn.textContent = '🌙';
-    }
-
-    // Cambiar tema al hacer clic
-    themeBtn.addEventListener('click', function() {
-        document.body.classList.toggle('dark-mode');
-        const isDark = document.body.classList.contains('dark-mode');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        themeBtn.textContent = isDark ? '☀️' : '🌙';
-    });
 
     // ============================================
     // CSRF: Auto-generar token si no existe
@@ -86,4 +85,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-});
+    // Visor de contraseña para CONFIRMAR
+    const toggleConfirmBtn = document.getElementById('toggleConfirmPassword');
+    const confirmPasswordInput = document.getElementById('password_confirm');
+
+    if (toggleConfirmBtn && confirmPasswordInput) {
+        toggleConfirmBtn.addEventListener('click', function () {
+            const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPasswordInput.setAttribute('type', type);
+            this.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+        });
+    }
+
+}); // Fin DOMContentLoaded

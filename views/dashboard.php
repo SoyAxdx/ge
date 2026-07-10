@@ -1,176 +1,164 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Gestión Escolar</title>
-    <link rel="icon" href="assets/img/favicon.ico">
-    <link rel="stylesheet" href="assets/css/style.css">
-    <style>
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            text-align: center;
-            border-left: 4px solid #1e6b3a;
-        }
-        .stat-card .numero {
-            font-size: 32px;
-            font-weight: bold;
-            color: #1e6b3a;
-        }
-        .stat-card .label {
-            color: #666;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-        .stat-card .promedio {
-            font-size: 28px;
-            font-weight: bold;
-            color: #f39c12;
-        }
-        .row-dos-columnas {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .lista-reciente {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #e0e0e0;
-        }
-        .lista-reciente h4 {
-            margin-bottom: 10px;
-            color: #1e6b3a;
-        }
-        .lista-reciente ul {
-            list-style: none;
-            padding: 0;
-        }
-        .lista-reciente li {
-            padding: 6px 0;
-            border-bottom: 1px solid #eee;
-        }
-        .lista-reciente li:last-child {
-            border-bottom: none;
-        }
-        .badge {
-            background: #1e6b3a;
-            color: white;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-        }
-        @media (max-width: 768px) {
-            .row-dos-columnas {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="dashboard-container">
-        <div class="dashboard-header">
-            <h1>📚 Gestión Escolar</h1>
+<?php
+$titulo = 'Dashboard - Gestión Escolar';
+include_once __DIR__ . '/layout/header.php';
+?>
+
+<div class="dashboard-wrapper">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            <i class="bi bi-mortarboard-fill"></i> GE
+        </div>
+
+        <!-- Navegación principal -->
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a href="index.php?action=dashboard" class="nav-link active">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="index.php?action=estudiantes" class="nav-link">
+                    <i class="bi bi-people-fill"></i> Estudiantes
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="index.php?action=cursos" class="nav-link">
+                    <i class="bi bi-book-fill"></i> Cursos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="index.php?action=inscripciones" class="nav-link">
+                    <i class="bi bi-clipboard-data-fill"></i> Inscripciones
+                </a>
+            </li>
+        </ul>
+
+        <!-- Espaciador para empujar el contenido hacia abajo -->
+        <div style="flex: 1;"></div>
+
+        <!-- Perfil de usuario, Modo Oscuro y Cerrar Sesión (abajo del todo) -->
+        <div class="sidebar-footer">
+            <!-- Información del usuario -->
             <div class="user-info">
+                <div class="avatar">
+                    <?php echo strtoupper(substr($_SESSION['usuario_nombre'] ?? 'U', 0, 1)); ?>
+                </div>
                 <strong><?php echo htmlspecialchars($_SESSION['usuario_nombre'] ?? 'Usuario'); ?></strong>
-                (<?php echo htmlspecialchars($_SESSION['usuario_rol'] ?? 'estudiante'); ?>)
-                <a href="index.php?action=logout" class="btn btn-secondary" style="display:inline-block; padding:5px 15px; width:auto; margin-left:10px;">Cerrar Sesión</a>
+                <br>
+                <span class="badge bg-secondary"><?php echo htmlspecialchars($_SESSION['usuario_rol'] ?? 'estudiante'); ?></span>
+            </div>
+
+            <!-- Botón Modo Oscuro/Claro -->
+            <button id="themeToggle" class="btn btn-outline-secondary w-100 mb-2" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="bi bi-moon-stars"></i> <span id="themeText">Modo Oscuro</span>
+            </button>
+
+            <!-- Botón Cerrar Sesión -->
+            <a href="index.php?action=logout" class="btn btn-danger w-100">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <h1 class="mb-4">📊 Dashboard</h1>
+
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="stat-number"><?= $total_estudiantes ?? 0 ?></p>
+                            <p class="stat-label">Estudiantes</p>
+                        </div>
+                        <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card green">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="stat-number"><?= $total_cursos ?? 0 ?></p>
+                            <p class="stat-label">Cursos</p>
+                        </div>
+                        <div class="stat-icon"><i class="bi bi-book-fill"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card orange">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="stat-number"><?= $total_inscripciones ?? 0 ?></p>
+                            <p class="stat-label">Inscripciones</p>
+                        </div>
+                        <div class="stat-icon"><i class="bi bi-clipboard-data-fill"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="stat-card red">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <p class="stat-number"><?= $promedio_notas ?? 0 ?></p>
+                            <p class="stat-label">Promedio de Notas</p>
+                        </div>
+                        <div class="stat-icon"><i class="bi bi-graph-up-arrow"></i></div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- ==========================================
-        BOTONES DE NAVEGACIÓN
-        ========================================== -->
-        <div style="display:flex; gap:20px; margin-bottom:30px; flex-wrap:wrap;">
-            <a href="index.php?action=estudiantes" class="btn btn-primary" style="display:inline-block; width:auto; padding:12px 25px;">👨‍🎓 Gestionar Estudiantes</a>
-            <a href="index.php?action=cursos" class="btn btn-primary" style="display:inline-block; width:auto; padding:12px 25px;">📖 Gestionar Cursos</a>
-            <a href="index.php?action=inscripciones" class="btn btn-primary" style="display:inline-block; width:auto; padding:12px 25px;">📋 Gestionar Inscripciones</a>
+        <!-- Últimos inscritos y Cursos populares -->
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="table-container">
+                    <h5><i class="bi bi-clock-history"></i> Últimos inscritos</h5>
+                    <?php if (empty($ultimos_inscritos)): ?>
+                        <p class="text-muted">No hay inscripciones recientes.</p>
+                    <?php else: ?>
+                        <ul class="list-group list-group-flush">
+                            <?php foreach ($ultimos_inscritos as $insc): ?>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong><?= htmlspecialchars($insc['estudiante_nombre'] . ' ' . $insc['estudiante_apellido']) ?></strong>
+                                        <br>
+                                        <small class="text-muted"><?= $insc['fecha_inscripcion'] ?></small>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill"><?= htmlspecialchars($insc['curso_nombre']) ?></span>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="table-container">
+                    <h5><i class="bi bi-fire"></i> Cursos populares</h5>
+                    <?php if (empty($cursos_populares)): ?>
+                        <p class="text-muted">No hay cursos con inscripciones aún.</p>
+                    <?php else: ?>
+                        <ul class="list-group list-group-flush">
+                            <?php foreach ($cursos_populares as $curso): ?>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong><?= htmlspecialchars($curso['nombre']) ?></strong>
+                                        <br>
+                                        <small class="text-muted">Código: <?= htmlspecialchars($curso['codigo']) ?></small>
+                                    </div>
+                                    <span class="badge bg-success rounded-pill"><?= $curso['total_estudiantes'] ?> estudiantes</span>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
+    </main>
+</div>
 
-        <!-- ==========================================
-        ESTADÍSTICAS GENERALES
-        ========================================== -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="numero"><?= $total_estudiantes ?? 0 ?></div>
-                <div class="label">👨‍🎓 Estudiantes</div>
-            </div>
-            <div class="stat-card">
-                <div class="numero"><?= $total_cursos ?? 0 ?></div>
-                <div class="label">📖 Cursos</div>
-            </div>
-            <div class="stat-card">
-                <div class="numero"><?= $total_inscripciones ?? 0 ?></div>
-                <div class="label">📋 Inscripciones</div>
-            </div>
-            <div class="stat-card">
-                <div class="promedio"><?= $promedio_notas ?? 0 ?></div>
-                <div class="label">📊 Promedio de Notas</div>
-            </div>
-        </div>
-
-        <!-- ==========================================
-        FILA DE DOS COLUMNAS
-        ========================================== -->
-        <div class="row-dos-columnas">
-
-            <!-- ÚLTIMOS INSCRITOS -->
-            <div class="lista-reciente">
-                <h4>🕐 Últimos inscritos</h4>
-                <?php if (empty($ultimos_inscritos)): ?>
-                    <p style="color:#999; font-size:14px;">No hay inscripciones recientes.</p>
-                <?php else: ?>
-                    <ul>
-                        <?php foreach ($ultimos_inscritos as $insc): ?>
-                            <li>
-                                <strong><?= htmlspecialchars($insc['estudiante_nombre'] . ' ' . $insc['estudiante_apellido']) ?></strong>
-                                <span class="badge"><?= htmlspecialchars($insc['curso_nombre']) ?></span>
-                                <br>
-                                <small style="color:#999;"><?= $insc['fecha_inscripcion'] ?></small>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                <?php endif; ?>
-            </div>
-
-            <!-- CURSOS POPULARES -->
-            <div class="lista-reciente">
-                <h4>🔥 Cursos con más estudiantes</h4>
-                <?php if (empty($cursos_populares)): ?>
-                    <p style="color:#999; font-size:14px;">No hay cursos con inscripciones aún.</p>
-                <?php else: ?>
-                    <ul>
-                        <?php foreach ($cursos_populares as $curso): ?>
-                            <li>
-                                <strong><?= htmlspecialchars($curso['nombre']) ?></strong>
-                                <span class="badge"><?= $curso['total_estudiantes'] ?> estudiantes</span>
-                                <br>
-                                <small style="color:#999;">Código: <?= htmlspecialchars($curso['codigo']) ?></small>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                <?php endif; ?>
-            </div>
-
-        </div>
-
-        <!-- ==========================================
-        PIE DE PÁGINA
-        ========================================== -->
-        <div style="background:#f9f9f9; padding:20px; border-radius:6px; border:1px solid #e0e0e0; margin-top:20px;">
-            <h3 style="margin-bottom:15px;">📊 Resumen del Sistema</h3>
-            <p style="text-align:left;">Sistema de gestión escolar desarrollado en PHP con POO y PDO.</p>
-        </div>
-    </div>
-</body>
-</html>
+<?php include_once __DIR__ . '/layout/footer.php'; ?>
