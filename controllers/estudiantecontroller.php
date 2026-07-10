@@ -53,6 +53,41 @@ class EstudianteController {
     public function crear() {
         include_once __DIR__ . '/../views/estudiantes/crear.php';
     }
+
+    // ============================================
+// MOSTRAR FORMULARIO DE EDICIÓN (UPDATE)
+// ============================================
+public function editar() {
+    // Activar errores para depuración
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+    
+    try {
+        $id = $_GET['id'] ?? 0;
+        
+        if ($id <= 0) {
+            $_SESSION['error'] = '❌ ID de estudiante inválido.';
+            header('Location: index.php?action=estudiantes');
+            exit();
+        }
+        
+        $estudiante = $this->modelo->obtenerPorId($id);
+        
+        if (!$estudiante) {
+            $_SESSION['error'] = '❌ Estudiante no encontrado.';
+            header('Location: index.php?action=estudiantes');
+            exit();
+        }
+        
+        include_once __DIR__ . '/../views/estudiantes/editar.php';
+        
+    } catch (Exception $e) {
+        echo "Error: " . $e->getMessage();
+        echo "<br>Archivo: " . $e->getFile();
+        echo "<br>Línea: " . $e->getLine();
+        exit();
+    }
+}
     
     // ============================================
 // GUARDAR ESTUDIANTE (CREATE) - CON TODAS LAS VALIDACIONES
@@ -174,118 +209,131 @@ public function guardar() {
     }
 }
     
-    // ============================================
+// ============================================
 // ACTUALIZAR ESTUDIANTE (UPDATE)
 // ============================================
 public function actualizar() {
+    // ✅ Activar errores para depuración
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
 
-    // Verificar CSRF
-if (!isset($_POST['csrf_token']) || !verificarTokenCSRF($_POST['csrf_token'])) {
-    $_SESSION['error'] = '❌ Error de seguridad. Intenta de nuevo.';
-    header('Location: index.php?action=estudiantes');
-    exit();
+    try {
+        
+
+        // Verificar CSRF
+        if (!isset($_POST['csrf_token']) || !verificarTokenCSRF($_POST['csrf_token'])) {
+            $_SESSION['error'] = '❌ Error de seguridad. Intenta de nuevo.';
+            header('Location: index.php?action=estudiantes');
+            exit();
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: index.php?action=estudiantes');
+            exit();
+        }
+
+        // --- Recoger y NORMALIZAR datos ---
+        $id = $_POST['id'] ?? 0;
+        $cedula = trim($_POST['cedula'] ?? '');
+        $nombre = $this->normalizarNombre($_POST['nombre'] ?? '');
+        $apellido = $this->normalizarNombre($_POST['apellido'] ?? '');
+        $email = $this->normalizarEmail($_POST['email'] ?? '');
+        $telefono = trim($_POST['telefono'] ?? '');
+        $fecha_nacimiento = $_POST['fecha_nacimiento'] ?? null;
+        $direccion = trim($_POST['direccion'] ?? '');
+
+        // ==========================================
+        // VALIDACIONES
+        // ==========================================
+
+        // 1. Validar que el ID sea válido
+        if ($id <= 0) {
+            $_SESSION['error'] = '❌ ID de estudiante inválido.';
+            header('Location: index.php?action=estudiantes');
+            exit();
+        }
+
+        // 2. Validar cédula panameña
+        if (!preg_match('/^[0-9]-[0-9]{2,3}-[0-9]{2,4}$/', $cedula)) {
+            $_SESSION['error'] = '❌ Formato de cédula inválido. Usa: 0-000-0000, 0-00-00 o 0-00-000';
+            header('Location: index.php?action=estudiante_editar&id=' . $id);
+            exit();
+        }
+
+        // 3. Validar nombre
+        if (!preg_match('/^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s]+$/', $nombre)) {
+            $_SESSION['error'] = '❌ El nombre solo debe contener letras.';
+            header('Location: index.php?action=estudiante_editar&id=' . $id);
+            exit();
+        }
+        if (strlen($nombre) < 2) {
+            $_SESSION['error'] = '❌ El nombre debe tener al menos 2 caracteres.';
+            header('Location: index.php?action=estudiante_editar&id=' . $id);
+            exit();
+        }
+
+        // 4. Validar apellido
+        if (!preg_match('/^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s]+$/', $apellido)) {
+            $_SESSION['error'] = '❌ El apellido solo debe contener letras.';
+            header('Location: index.php?action=estudiante_editar&id=' . $id);
+            exit();
+        }
+        if (strlen($apellido) < 2) {
+            $_SESSION['error'] = '❌ El apellido debe tener al menos 2 caracteres.';
+            header('Location: index.php?action=estudiante_editar&id=' . $id);
+            exit();
+        }
+
+        // 5. Validar email
+        if ($email !== '') {
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $_SESSION['error'] = '❌ El correo electrónico no es válido.';
+                header('Location: index.php?action=estudiante_editar&id=' . $id);
+                exit();
+            }
+            if (!preg_match('/\.(com|es)$/', $email)) {
+                $_SESSION['error'] = '❌ El correo debe tener dominio .com o .es.';
+                header('Location: index.php?action=estudiante_editar&id=' . $id);
+                exit();
+            }
+        }
+
+        // 6. Validar teléfono
+        if ($telefono !== '' && !preg_match('/^[0-9]{4}-[0-9]{4}$/', $telefono)) {
+            $_SESSION['error'] = '❌ Formato de teléfono inválido. Usa: xxxx-xxxx';
+            header('Location: index.php?action=estudiante_editar&id=' . $id);
+            exit();
+        }
+
+        // ==========================================
+        // ACTUALIZAR EN BASE DE DATOS
+        // ==========================================
+        $datos = [
+            'cedula' => $cedula,
+            'nombre' => $nombre,
+            'apellido' => $apellido,
+            'fecha_nacimiento' => $fecha_nacimiento,
+            'direccion' => $direccion,
+            'telefono' => $telefono,
+            'email' => $email
+        ];
+
+        if ($this->modelo->actualizar($id, $datos)) {
+            $_SESSION['success'] = '✅ Estudiante actualizado exitosamente.';
+        } else {
+            $_SESSION['error'] = '❌ Error al actualizar estudiante.';
+        }
+
+        header('Location: index.php?action=estudiantes');
+        exit();
+
+    } catch (Exception $e) {
+        echo "Error: " . $e->getMessage();
+        echo "<br>Archivo: " . $e->getFile();
+        echo "<br>Línea: " . $e->getLine();
+        exit();
+    }
 }
-
-   if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        header('Location: index.php?action=estudiantes');
-        exit();
-    }
-
-    // --- Recoger y NORMALIZAR datos ---
-    $id = $_POST['id'] ?? 0;
-    $cedula = trim($_POST['cedula'] ?? '');
-    $nombre = $this->normalizarNombre($_POST['nombre'] ?? '');
-    $apellido = $this->normalizarNombre($_POST['apellido'] ?? '');
-    $email = $this->normalizarEmail($_POST['email'] ?? '');
-    $telefono = trim($_POST['telefono'] ?? '');
-    $fecha_nacimiento = $_POST['fecha_nacimiento'] ?? null;
-    $direccion = trim($_POST['direccion'] ?? '');
-
-    // ==========================================
-    // VALIDACIONES
-    // ==========================================
-
-    // 1. Validar que el ID sea válido
-    if ($id <= 0) {
-        $_SESSION['error'] = '❌ ID de estudiante inválido.';
-        header('Location: index.php?action=estudiantes');
-        exit();
-    }
-
-    // 2. Validar cédula panameña
-    if (!preg_match('/^[0-9]-[0-9]{2,3}-[0-9]{2,4}$/', $cedula)) {
-        $_SESSION['error'] = '❌ Formato de cédula inválido. Usa: 0-000-0000, 0-00-00 o 0-00-000';
-        header('Location: index.php?action=estudiante_editar&id=' . $id);
-        exit();
-    }
-
-    // 3. Validar nombre (solo letras y espacios, mínimo 2 caracteres)
-    if (!preg_match('/^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s]+$/', $nombre)) {
-        $_SESSION['error'] = '❌ El nombre solo debe contener letras.';
-        header('Location: index.php?action=estudiante_editar&id=' . $id);
-        exit();
-    }
-    if (strlen($nombre) < 2) {
-        $_SESSION['error'] = '❌ El nombre debe tener al menos 2 caracteres.';
-        header('Location: index.php?action=estudiante_editar&id=' . $id);
-        exit();
-    }
-
-    // 4. Validar apellido (solo letras y espacios, mínimo 2 caracteres)
-    if (!preg_match('/^[a-zA-ZáéíóúñÁÉÍÓÚÑ\s]+$/', $apellido)) {
-        $_SESSION['error'] = '❌ El apellido solo debe contener letras.';
-        header('Location: index.php?action=estudiante_editar&id=' . $id);
-        exit();
-    }
-    if (strlen($apellido) < 2) {
-        $_SESSION['error'] = '❌ El apellido debe tener al menos 2 caracteres.';
-        header('Location: index.php?action=estudiante_editar&id=' . $id);
-        exit();
-    }
-
-    // 5. Validar email (si se ingresó)
-    if ($email !== '') {
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $_SESSION['error'] = '❌ El correo electrónico no es válido.';
-            header('Location: index.php?action=estudiante_editar&id=' . $id);
-            exit();
-        }
-        if (!preg_match('/\.(com|es)$/', $email)) {
-            $_SESSION['error'] = '❌ El correo debe tener dominio .com o .es.';
-            header('Location: index.php?action=estudiante_editar&id=' . $id);
-            exit();
-        }
-    }
-
-    // 6. Validar teléfono (si se ingresó)
-    if ($telefono !== '' && !preg_match('/^[0-9]{4}-[0-9]{4}$/', $telefono)) {
-        $_SESSION['error'] = '❌ Formato de teléfono inválido. Usa: xxxx-xxxx';
-        header('Location: index.php?action=estudiante_editar&id=' . $id);
-        exit();
-    }
-
-    // ==========================================
-    // ACTUALIZAR EN BASE DE DATOS
-    // ==========================================
-    $datos = [
-        'cedula' => $cedula,
-        'nombre' => $nombre,
-        'apellido' => $apellido,
-        'fecha_nacimiento' => $fecha_nacimiento,
-        'direccion' => $direccion,
-        'telefono' => $telefono,
-        'email' => $email
-    ];
-
-    if ($this->modelo->actualizar($id, $datos)) {
-        $_SESSION['success'] = '✅ Estudiante actualizado exitosamente.';
-    } else {
-        $_SESSION['error'] = '❌ Error al actualizar estudiante.';
-    }
-
-    header('Location: index.php?action=estudiantes');
-    exit();
-  }
     
     // ============================================
     // ELIMINAR ESTUDIANTE (DELETE)
