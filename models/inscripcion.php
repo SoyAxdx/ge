@@ -236,5 +236,9 @@ public function cursosPopulares($limite = 5) {
     return $stmt->fetchAll();
   }
 
+  public function getConnection() {
+    return $this->db;
+}
+
 }
 ?>

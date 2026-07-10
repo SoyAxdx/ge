@@ -10,6 +10,12 @@
 <body>
     <div class="auth-container">
         <div class="auth-card">
+            <!-- Logo centrado -->
+            <div class="text-center">
+                <img src="assets/img/logo.png" alt="GE - Gestión Escolar" class="logo-login">
+                <p class="login-subtitle">Sistema de Gestión Escolar</p>
+            </div>
+
             <h1>📚 Gestión Escolar</h1>
             <h2>Iniciar Sesión</h2>
             
@@ -28,20 +34,24 @@
             <form method="POST" action="index.php?action=procesar_login">
                 <div class="form-group">
                     <label for="email">Correo electrónico:</label>
-                    <input type="email" id="email" name="email" class="form-control" required>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="ejemplo@correo.com" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="password">Contraseña:</label>
-                    <input type="password" id="password" name="password" class="form-control" required>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
                 </div>
                 
                 <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
                 <?php echo campoTokenCSRF(); ?>
             </form>
             
-            <p class="text-center">¿No tienes cuenta? <a href="index.php?action=register">Regístrate aquí</a></p>
-            <p class="text-center"><a href="index.php">← Volver al inicio</a></p>
+            <p style="text-align:center; margin-top:15px;">
+                ¿No tienes cuenta? <a href="index.php?action=register">Regístrate aquí</a>
+            </p>
+            <p style="text-align:center;">
+                <a href="index.php">← Volver al inicio</a>
+            </p>
         </div>
     </div>
 </body>

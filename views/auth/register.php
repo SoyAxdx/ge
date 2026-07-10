@@ -10,6 +10,12 @@
 <body>
     <div class="auth-container">
         <div class="auth-card">
+
+            <div class="auth-card">
+    <div class="text-center mb-3">
+        <img src="assets/img/logo.png" alt="GE - Gestión Escolar" class="logo-login">
+    </div>
+
             <h1>📚 Gestión Escolar</h1>
             <h2>Registro de Usuario</h2>
 
