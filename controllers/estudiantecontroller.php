@@ -55,9 +55,9 @@ class EstudianteController {
     }
     
     // ============================================
-    // GUARDAR ESTUDIANTE (CREATE) - CON TODAS LAS VALIDACIONES
-    // ============================================
-    public function guardar() {
+// GUARDAR ESTUDIANTE (CREATE) - CON TODAS LAS VALIDACIONES
+// ============================================
+public function guardar() {
     // Activar errores para depuración
     ini_set('display_errors', 1);
     error_reporting(E_ALL);
@@ -141,7 +141,7 @@ class EstudianteController {
         }
 
         // ==========================================
-        // GUARDAR EN BASE DE DATOS
+        // CREAR ESTUDIANTE CON USUARIO AUTOMÁTICO
         // ==========================================
         $datos = [
             'cedula' => $cedula,
@@ -153,10 +153,13 @@ class EstudianteController {
             'email' => $email
         ];
 
-        if ($this->modelo->crear($datos)) {
-            $_SESSION['success'] = '✅ Estudiante creado exitosamente.';
+        // ✅ Usar el método que crea estudiante + usuario
+        $resultado = $this->modelo->crearConUsuario($datos);
+
+        if ($resultado['success']) {
+            $_SESSION['success'] = '✅ Estudiante creado exitosamente. Contraseña temporal: <strong>' . $resultado['password'] . '</strong>';
         } else {
-            $_SESSION['error'] = '❌ Error al crear estudiante.';
+            $_SESSION['error'] = '❌ Error al crear estudiante: ' . $resultado['error'];
         }
 
         header('Location: index.php?action=estudiantes');

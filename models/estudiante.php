@@ -7,6 +7,7 @@ namespace Models;
 
 use Config\Database;
 use PDO;
+use Exception;
 
 class Estudiante {
     
@@ -188,5 +189,64 @@ class Estudiante {
         }
         return $resultados;
     }
+
+// ============================================
+// CREAR ESTUDIANTE CON USUARIO AUTOMÁTICO
+// ============================================
+public function crearConUsuario($datos) {
+    // Iniciar transacción
+    $this->db->beginTransaction();
+    
+    try {
+        // 1. Crear el usuario (con contraseña temporal)
+        $password_temporal = 'tmp' . date('Y') . rand(100, 999);
+        $hash = password_hash($password_temporal, PASSWORD_DEFAULT);
+        
+        $sql = "INSERT INTO usuarios (nombre, apellido, email, password, rol) 
+                VALUES (:nombre, :apellido, :email, :password, 'estudiante')";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            ':nombre' => $datos['nombre'],
+            ':apellido' => $datos['apellido'],
+            ':email' => $datos['email'],
+            ':password' => $hash
+        ]);
+        
+        $usuario_id = $this->db->lastInsertId();
+        
+        // 2. Crear el estudiante (con el usuario_id)
+        $sql = "INSERT INTO estudiantes (usuario_id, cedula, nombre, apellido, fecha_nacimiento, direccion, telefono, email) 
+                VALUES (:usuario_id, :cedula, :nombre, :apellido, :fecha_nacimiento, :direccion, :telefono, :email)";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            ':usuario_id' => $usuario_id,
+            ':cedula' => $this->cifrar($datos['cedula']),
+            ':nombre' => $this->cifrar($datos['nombre']),
+            ':apellido' => $this->cifrar($datos['apellido']),
+            ':fecha_nacimiento' => $datos['fecha_nacimiento'],
+            ':direccion' => $this->cifrar($datos['direccion']),
+            ':telefono' => $this->cifrar($datos['telefono']),
+            ':email' => $this->cifrar($datos['email'])
+        ]);
+        
+        $this->db->commit();
+        
+        return [
+            'success' => true,
+            'usuario_id' => $usuario_id,
+            'password' => $password_temporal
+        ];
+        
+    } catch (Exception $e) {
+        $this->db->rollBack();
+        return [
+            'success' => false,
+            'error' => $e->getMessage()
+        ];
+    }
+}
+
 }
 ?>
